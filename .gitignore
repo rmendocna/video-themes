@@ -19,6 +19,7 @@ lib64/
 parts/
 sdist/
 var/
+bin/
 wheels/
 pip-wheel-metadata/
 share/python-wheels/
@@ -109,6 +110,8 @@ venv/
 ENV/
 env.bak/
 venv.bak/
+pyvenv.cfg
+*.DS_Store
 
 # Spyder project settings
 .spyderproject

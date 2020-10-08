@@ -1,0 +1,138 @@
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Video themes</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/fontawesome.min.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
+  </head>
+  <body>
+  <div class="container-fluid" id="vue_app">
+    <h1>Video Database</h1>
+    <div class="float-right">${ videos.length } videos </div>
+      <br>
+    <div class="row">
+      <div class="col-4" v-for="video in videos" :key="video.id">
+        <video width="100%" height="240" controls>
+          <source :src="'/download/' + video.video" :type="video.mime_type">
+          Your browser does not support the video tag.
+        </video>
+        <legend>${ video.name }</legend>
+        <div class="float-right">
+          <button class="btn btn-sm btn-secondary" @click="thumbsDown(video)"><i class="fa fa-thumbs-down"></i> ${ video.thumbs_dn || 0 }</button>
+          <button class="btn btn-sm btn-secondary" @click="thumbsUp(video)"><i class="fa fa-thumbs-up"></i> ${ video.thumbs_up || 0}</button>
+        </div>
+        <em>(${ video.theme })</em>
+      </div>
+    </div>
+
+      <button v-if="!showForm" class="btn btn-secondary my-5" @click="showForm=true">Add new</button>
+      <form method="POST" enctype="multipart/form-data" v-if="showForm" @submit.prevent="uploadFile">
+        <fieldset>
+          <legend>Upload new video</legend>
+        {{ form.hidden_tag() }}
+        {% for field in form %}
+          {% if 'hidden' not in field.flags %}
+          <p><label for="{{ field.id }}">{{ field.label }}</label>
+            {{ field }}
+          </p>
+          {% endif %}
+        {% endfor %}
+          </fieldset>
+        <button type="button" @click="showForm=false" class="btn btn-secondary">Cancel</button>
+        <button class="btn btn-primary">Upload</button>
+      </form>
+    </div>
+  </div>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.20.0/axios.min.js" integrity="sha512-quHCp3WbBNkwLfYUMd+KwBAgpVukJu5MncuQaWXgCrfgcxCJAq/fo+oqrRKOj+UKEmyMCG3tb8RB63W+EmrOBg==" crossorigin="anonymous"></script>
+  <script src="//cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+  <script>
+        var app = new Vue({
+          delimiters: ['${', '}'],
+          data: {
+            videos: [],
+            showForm: false
+          },
+          el: '#vue_app',
+          methods: {
+            clearForm: function (frm) {
+              for (var i in frm.elements) {
+                if (frm.hasOwnProperty(i)) {
+                  var el = frm[i];
+                  if (el.name && el.type != 'hidden')
+                    el.value='';
+                  }
+              }
+            },
+            thumbs: function (vid, dir) {
+              var self = this;
+              axios.put('/api/thumbs/' + vid + '/', {dir: dir},
+                  {
+                  headers: { 'X-CSRF-Token': '{{ csrf_token() }}'}
+                  }
+                ).then(function (response) {
+                  var data = response.data;
+                  var videos = self.videos.filter(function (v) {
+                    return v._id == vid
+                  })
+                  videos.forEach(function(v) {
+                    v['thumbs_' + dir] = data['thumbs_' + dir]
+                  })
+                }).catch(function (response) {
+                  alert(response)
+                })
+
+            },
+            thumbsUp: function (video) {
+              this.thumbs(video._id, 'up')
+            },
+            thumbsDown: function (video) {
+              this.thumbs(video._id, 'dn')
+            },
+            uploadFile: function (e) {
+              var self = this,
+                  form = e.target,
+                  videoField = form.video,
+                  formData = new FormData(form), el;
+              formData.set("video", videoField.files[0]);
+              axios.post('{{ url_for('api_upload') }}', formData, {
+                  headers: {
+                    'Content-Type': 'multipart/form-data'
+                  }
+              }).then(function (response) {
+                var data = response.data;
+                data.added = new Date(data.added.$date);
+                data._id = data._id.$oid;
+                self.videos.push(data);
+                self.clearForm();
+                self.showForm = false;
+              }).catch(function (response) {
+                var data = response.data, k;
+                if (typeof data === 'object') {
+                  for (k in Object.keys(data)) {
+                    alert(k, data[k]);
+                  }
+                } else
+                    alert(response)
+              })
+            }
+          },
+          created: function () {
+            var self = this;
+            axios.get('{{ url_for("api_videos") }}').then(function (response) {
+              var data = response.data.slice();
+              self.videos = data.map(function (d) {
+                var x = d;
+                if (d.hasOwnProperty('added'))
+                  x.added = new Date(x.added.$date);
+                x._id = x._id.$oid;
+                return x
+              })
+            }).catch(function(error) {
+              alert(error)
+            });
+          }
+        })
+    </script>
+  </body>
+</html>
