@@ -28,6 +28,18 @@ def index():
     return render_template('index.html', form=form)
 
 
+@app.route('/themes/')
+def themes():
+    thumbs_up = {'$max': ['$thumbs_up', 0]}
+    thumbs_dn = {'$max': ['$thumbs_dn', 0]}
+    _score = {'$subtract': [thumbs_up, {'$divide': [thumbs_dn, 2]}]}
+    videos = mongo.db.videos.aggregate([{'$group': {'_id': '$theme',
+                                                    'score': {'$sum': _score},
+                                                    'count': {'$sum': 1},
+                                                    }}])
+    return render_template('themes.html', videos=videos)
+
+
 @app.route('/api/upload/', methods=['POST'])
 def api_upload():
     form = UploadForm(request.form)

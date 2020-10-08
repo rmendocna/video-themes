@@ -1,0 +1,21 @@
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Video themes</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/fontawesome.min.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
+  </head>
+  <body>
+    <div class="container-fluid" id="vue_app">
+      <a href="{{ url_for('index') }}" class="btn btn-light btn-lg float-right">&lt; Home</a>
+        <h1>Themes</h1>
+        <ul class="list-group">
+            {% for video in videos %}
+          <li class="list-group-item">{{ video._id }} (#{{ video.count }})
+            <span class="float-right"><span class="badge badge-secondary">{{ video.score }}</span></span>
+          </li>{% endfor%}
+        </ul>
+    </div>
+  </body>
+</html>
