@@ -1,0 +1,10 @@
+version: "3.3"
+
+services:
+  alpine:
+    build:
+      context: .
+      dockerfile: Dockerfile 
+    command: "gunicorn -b 0.0.0.0:8000 project:'create_app()'"
+    ports:
+      - "8000:8000"
