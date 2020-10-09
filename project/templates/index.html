@@ -8,7 +8,7 @@
   </head>
   <body>
   <div class="container-fluid" id="vue_app">
-    <a href="{{ url_for('themes') }}" class="btn btn-light btn-lg float-right">Scores &gt; </a>
+    <a href="{{ url_for('main.themes') }}" class="btn btn-light btn-lg float-right">Scores &gt; </a>
     <h1>Video Scoring</h1>
     <div class="float-right">${ videos.length } videos </div>
       <br>
@@ -19,8 +19,8 @@
           Your browser does not support the video tag.
         </video>
         <div class="float-right">
-          <button class="btn btn-sm btn-secondary bg-danger" @click="thumbsDown(video)"><i class="fa fa-thumbs-down"></i> ${ video.thumbs_dn || 0 }</button>
-          <button class="btn btn-sm btn-primary" @click="thumbsUp(video)"><i class="fa fa-thumbs-up"></i> ${ video.thumbs_up || 0}</button>
+          <button class="btn btn-sm btn-secondary bg-danger" @click="thumbsDown(video._id)"><i class="fa fa-thumbs-down"></i> ${ video.thumbs_dn || 0 }</button>
+          <button class="btn btn-sm btn-primary" @click="thumbsUp(video._id)"><i class="fa fa-thumbs-up"></i> ${ video.thumbs_up || 0}</button>
         </div>
         <legend>${ video.name }</legend>
         <em>(${ video.theme })</em>
@@ -39,14 +39,14 @@
           </p>
           {% endif %}
         {% endfor %}
-        <button type="button" @click="showForm=false" class="btn btn-secondary">Cancel</button>
-        <button class="btn btn-primary">Upload</button>
+          <button type="button" @click="showForm=false" class="btn btn-secondary">Cancel</button>
+          <button class="btn btn-primary">Upload</button>
           </fieldset>
       </form>
     </div>
   </div>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.20.0/axios.min.js" integrity="sha512-quHCp3WbBNkwLfYUMd+KwBAgpVukJu5MncuQaWXgCrfgcxCJAq/fo+oqrRKOj+UKEmyMCG3tb8RB63W+EmrOBg==" crossorigin="anonymous"></script>
-  <script src="//cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+  <script src="{{ url_for('static', filename='js/axios.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/vue.js') }}"></script>
   <script>
         var app = new Vue({
           delimiters: ['${', '}'],
@@ -78,18 +78,20 @@
                     return v._id == vid
                   })
                   videos.forEach(function(v) {
-                    v['thumbs_' + dir] = data['thumbs_' + dir]
+                    // original document is returned so we bump it up here
+                    v['thumbs_' + dir] = (data['thumbs_' + dir] || 0) + 1
                   })
+
                 }).catch(function (response) {
                   alert(response)
                 })
 
             },
-            thumbsUp: function (video) {
-              this.thumbs(video._id, 'up')
+            thumbsUp: function (vid) {
+              this.thumbs(vid, 'up')
             },
-            thumbsDown: function (video) {
-              this.thumbs(video._id, 'dn')
+            thumbsDown: function (vid) {
+              this.thumbs(vid, 'dn')
             },
             uploadFile: function (e) {
               var self = this,
@@ -97,7 +99,7 @@
                   videoField = form.video,
                   formData = new FormData(form), el;
               formData.set("video", videoField.files[0]);
-              axios.post('{{ url_for('api_upload') }}', formData, {
+              axios.post('{{ url_for('main.api_upload') }}', formData, {
                   headers: {
                     'Content-Type': 'multipart/form-data'
                   }
@@ -121,7 +123,7 @@
           },
           created: function () {
             var self = this;
-            axios.get('{{ url_for("api_videos") }}').then(function (response) {
+            axios.get('{{ url_for("main.api_videos") }}').then(function (response) {
               var data = response.data.slice();
               self.videos = data.map(function (d) {
                 var x = d;
