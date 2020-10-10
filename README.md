@@ -1,6 +1,7 @@
 # video-themes
 
 Demo of a video library using mongoDB GridFS storage. 
+
 User can:
 
  1. upload a video
@@ -18,4 +19,33 @@ Scores page shows the aggregations of videos by *thmes*, the number of videos in
 
 ![Scores](imgs/scores.png)
 
+# Setup
 
+ 1. Clone the repository and move into the directory that it created:
+```
+$ git clone https://github.com/rmendocna/video-themes.git
+$ cd video-themes
+```
+    
+ 2a. Start a virtual environment, install requirements and start gunicorn server. 
+    For this option you must have a MongoDB server running already.
+```    
+video-themes$ python3 -m venv .
+video-themes$ source bin/activate
+(video-themes) video-themes$ pip install -r requirements.txt
+(video-themes) video-themes$ gunicorn project:'create_app()'
+```
+    
+ 2b. Alternatively, if you a have docker installed, just run
+``` 
+video-themes$ docker-compose up
+```
+    
+ Finally, point your browser to ``http://localhost:8000/``
+
+## Testing
+
+ Having followed setup option `2a.` you can run tests locally by doing
+```
+(video-themes) video-themes$ pytest project
+```

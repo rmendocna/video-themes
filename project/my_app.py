@@ -69,7 +69,10 @@ def api_thumbs(vid):
     db = app.mongo.db
     ur = db.videos.find_one_and_update({'_id': vid},
                                        {'$inc': {'thumbs_%s' % data['dir']: 1}})
-    return dumps(ur, json_options=RELAXED_JSON_OPTIONS), 200
+
+    response = make_response(dumps(ur, json_options=RELAXED_JSON_OPTIONS), 200)
+    response.headers['Content-Type'] = 'application/json'
+    return response
 
 
 @bp.route('/download/<path:filename>/', methods=['GET'])
