@@ -1,10 +1,78 @@
-version: "3.3"
-
+version: '3'
 services:
-  alpine:
+
+  flask:
     build:
-      context: .
-      dockerfile: Dockerfile 
-    command: "gunicorn -b 0.0.0.0:8000 project:'create_app()'"
+      context: project
+      dockerfile: dockerfile_alpine
+    container_name: flask
+    image: rmendocna/flask-python:3.7
+    # restart: unless-stopped
+    environment:
+      APP_ENV: "prod"
+      APP_DEBUG: "True"
+      APP_PORT: 5000
+      MONGODB_DATABASE: videothemes
+      MONGODB_USER: ricardo
+      MONGODB_PASSWD: xTeGrYhxZz6e5Xg0
+      MONGODB_HOSTNAME: mongodb
+    volumes:
+      - appdata:/var/www
+    depends_on:
+      - mongodb
+    networks:
+      - frontend
+      - backend
+
+  mongodb:
+    image: mongo:4.0.8
+    container_name: mongodb
+    restart: unless-stopped
+    command: mongod --auth
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ricardo
+      MONGO_INITDB_ROOT_PASSWORD: dummy-password
+      MONGO_INITDB_DATABASE: videothemes
+      MONGODB_DATA_DIR: /data/db
+      MONDODB_LOG_DIR: /dev/null
+    volumes:
+      - mongodbdata:/data/db
+    networks:
+      - backend
+
+  webserver:
+    build:
+      context: nginx
+      dockerfile: Dockerfile
+    image: rmendocna/webserver:latest
+    container_name: webserver
+    restart: unless-stopped
+    environment:
+      APP_ENV: "prod"
+      APP_NAME: "webserver"
+      APP_DEBUG: "true"
+      SERVICE_NAME: "webserver"
     ports:
-      - "8000:8000"
+      - "80:80"
+      - "443:443"
+    volumes:
+      - nginxdata:/var/log/nginx
+    depends_on:
+      - flask
+    networks:
+      - frontend
+
+networks:
+  frontend:
+    driver: bridge
+  backend:
+    driver: bridge
+
+volumes:
+  mongodbdata:
+    driver: local
+  appdata:
+    driver: local
+  nginxdata:
+    driver: local
+

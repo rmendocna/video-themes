@@ -3,7 +3,7 @@ import unittest
 
 from flask import url_for
 
-from project import create_app
+from .app import create_app
 
 
 class BasicTests(unittest.TestCase):
