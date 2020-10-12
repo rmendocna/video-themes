@@ -7,7 +7,11 @@ from werkzeug.utils import secure_filename
 
 from bson import ObjectId
 from bson.json_util import dumps, RELAXED_JSON_OPTIONS
-from .forms import UploadForm
+# FIXME: consolidate gunicorn/flask vs container setup
+try:
+    from forms import UploadForm  # noqa
+except ImportError:
+    from .forms import UploadForm  # noqa
 
 bp = Blueprint("main", __name__)
 

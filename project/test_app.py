@@ -11,7 +11,7 @@ class BasicTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls) -> None:
         super(BasicTests, cls).setUpClass()
-        cls.app = create_app(test_config={'MONGODB_NAME': 'testdb'})
+        cls.app = create_app(test_config={'MONGODB_DATABASE': 'testdb'})
         cls.path = path.realpath(path.dirname(__file__))
 
     def empty_storage(self):

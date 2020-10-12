@@ -36,12 +36,16 @@ video-themes$ source bin/activate
 (video-themes) video-themes$ gunicorn project:'create_app()'
 ```
     
+    Finally, point your browser to ``http://localhost:8000/``
+    
  2b. Alternatively, if you a have docker installed, just run
 ``` 
 video-themes$ docker-compose up
 ```
-    
- Finally, point your browser to ``http://localhost:8000/``
+   The container starts a MongoDB and a Nginx server on port 80.
+   
+   You can then browse to ``http://localhost/`` and have your data persist
+   across multiple run of the container 
 
 ## Testing
 

@@ -1,4 +1,4 @@
-version: '3'
+version: '3.3'
 services:
 
   flask:
@@ -6,15 +6,16 @@ services:
       context: project
       dockerfile: dockerfile_alpine
     container_name: flask
-    image: rmendocna/flask-python:3.7
-    # restart: unless-stopped
+    image: rmendocna/flask-python:3.7.1.1
+    restart: unless-stopped
     environment:
       APP_ENV: "prod"
-      APP_DEBUG: "True"
+      APP_DEBUG: "False"
       APP_PORT: 5000
       MONGODB_DATABASE: videothemes
-      MONGODB_USER: ricardo
-      MONGODB_PASSWD: xTeGrYhxZz6e5Xg0
+#      MONGODB_USER: ricardo
+#      MONGODB_PASSWD: xTeGrYhxZz6e5Xg0
+      MONGODB_LOCAL: 1
       MONGODB_HOSTNAME: mongodb
     volumes:
       - appdata:/var/www
@@ -28,10 +29,10 @@ services:
     image: mongo:4.0.8
     container_name: mongodb
     restart: unless-stopped
-    command: mongod --auth
+    # command: mongod --auth
     environment:
-      MONGO_INITDB_ROOT_USERNAME: ricardo
-      MONGO_INITDB_ROOT_PASSWORD: dummy-password
+#      MONGO_INITDB_ROOT_USERNAME: root
+#      MONGO_INITDB_ROOT_PASSWORD: dummy-password
       MONGO_INITDB_DATABASE: videothemes
       MONGODB_DATA_DIR: /data/db
       MONDODB_LOG_DIR: /dev/null
