@@ -33,7 +33,7 @@ $ cd video-themes
 video-themes$ python3 -m venv .
 video-themes$ source bin/activate
 (video-themes) video-themes$ pip install -r requirements.txt
-(video-themes) video-themes$ gunicorn project:'create_app()'
+(video-themes) video-themes$ gunicorn project.wsgi
 ```
     
     Finally, point your browser to ``http://localhost:8000/``
@@ -45,7 +45,7 @@ video-themes$ docker-compose up
    The container starts a MongoDB and a Nginx server on port 80.
    
    You can then browse to ``http://localhost/`` and have your data persist
-   across multiple run of the container 
+   across multiple runs of the containers 
 
 ## Testing
 
